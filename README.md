@@ -13,6 +13,12 @@ readers and a single writer. It supports custom indexes and geospatial
 data. It's ideal for projects that need a dependable database and favor
 speed over data size.
 
+TL;DR
+========
+This is a fork of [buntdb](https://github.com/tidwall/buntdb) project from tag `v1.3.2`.\
+The project has been forked as it's dependencies and go version are not up to date.\
+The idea is to keep things up-to-date and keep adding new features that will be used by [rafty](https://github.com/Lord-Y/rafty).
+
 Features
 ========
 
