@@ -17,11 +17,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tidwall/btree"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/grect"
-	"github.com/tidwall/match"
-	"github.com/tidwall/rtred"
+	"github.com/Lord-Y/buntdb/btree"
+	"github.com/Lord-Y/buntdb/gjson"
+	"github.com/Lord-Y/buntdb/grect"
+	"github.com/Lord-Y/buntdb/match"
+	"github.com/Lord-Y/buntdb/rtred"
 )
 
 var (
