@@ -12,7 +12,7 @@ import (
 func TestSet(t *testing.T) {
 	N := 1_000_000
 	var tr Set[int]
-	for i := 0; i < N; i++ {
+	for i := range N {
 		tr.Load(i)
 	}
 	assert(tr.Len() == N)

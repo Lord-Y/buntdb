@@ -104,9 +104,5 @@ func WriteOutput(w io.Writer, count, threads int, elapsed time.Duration, alloc u
 		}
 		allocstr = fmt.Sprintf(", %s, %.1f bytes/op", memstr(alloc), bops)
 	}
-	fmt.Fprintf(w, "%s ops %sin %.0fms, %s/sec, %d ns/op%s\n",
-		commaize(count), ss, elapsed.Seconds()*1000,
-		commaize(int(float64(count)/elapsed.Seconds())),
-		nsop, allocstr,
-	)
+	_, _ = fmt.Fprintf(w, "%s ops %sin %.0fms, %s/sec, %d ns/op%s\n", commaize(count), ss, elapsed.Seconds()*1000, commaize(int(float64(count)/elapsed.Seconds())), nsop, allocstr)
 }

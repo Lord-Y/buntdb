@@ -83,7 +83,7 @@ func TestRTree(t *testing.T) {
 }
 
 func TestInsertDelete(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	n := 50000
 	tr := New(nil)
 	var r2arr []*tRect
@@ -118,7 +118,7 @@ func TestInsertDelete(t *testing.T) {
 	}
 }
 func TestPoints(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	n := 25000
 	tr := New(nil)
 	var points []*tPoint
@@ -149,7 +149,7 @@ func TestPoints(t *testing.T) {
 }
 func BenchmarkInsert(t *testing.B) {
 	t.StopTimer()
-	rand.Seed(time.Now().UnixNano())
+	_ = rand.New(rand.NewSource(time.Now().UnixNano()))
 	tr := New(nil)
 	var points []*tPoint
 	for i := 0; i < t.N; i++ {
@@ -171,11 +171,12 @@ func BenchmarkInsert(t *testing.B) {
 func TestKNN(t *testing.T) {
 	n := 25000
 	tr := New(nil)
-	var points []*tPoint
-	rand.Seed(1)
+	// var points []*tPoint
+	rand := rand.New(rand.NewSource(1))
+	_ = rand.Intn(10) + 1
 	for i := 0; i < n; i++ {
 		r := tRandPoint()
-		points = append(points, r)
+		// points = append(points, r)
 		tr.Insert(r)
 	}
 	if tr.Count() != n {

@@ -132,13 +132,13 @@ func (tr *Map[K, V]) search(n *mapNode[K, V], key K) (index int, found bool) {
 	low, high := 0, len(n.items)
 	for low < high {
 		h := (low + high) / 2
-		if !(key < n.items[h].key) {
+		if !(key < n.items[h].key) { //nolint
 			low = h + 1
 		} else {
 			high = h
 		}
 	}
-	if low > 0 && !(n.items[low-1].key < key) {
+	if low > 0 && !(n.items[low-1].key < key) { //nolint
 		return low - 1, true
 	}
 	return low, false

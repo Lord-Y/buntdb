@@ -18,7 +18,7 @@ func init() {
 		seed = time.Now().UnixNano()
 	}
 	fmt.Printf("seed: %d\n", seed)
-	rand.Seed(seed)
+	rand.Seed(seed) //nolint
 }
 
 // testKind is the item type.
@@ -57,7 +57,7 @@ func randKeys(N int) (keys []testKind) {
 }
 
 func (tr *BTreeG[T]) lt(a, b T) bool  { return tr.less(a, b) }
-func (tr *BTreeG[T]) eq(a, b T) bool  { return !(tr.lt(a, b) || tr.lt(b, a)) }
+func (tr *BTreeG[T]) eq(a, b T) bool  { return !(tr.lt(a, b) || tr.lt(b, a)) } //nolint
 func (tr *BTreeG[T]) lte(a, b T) bool { return tr.lt(a, b) || tr.eq(a, b) }
 func (tr *BTreeG[T]) gt(a, b T) bool  { return tr.lt(b, a) }
 func (tr *BTreeG[T]) gte(a, b T) bool { return tr.gt(a, b) || tr.eq(a, b) }

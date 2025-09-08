@@ -21,7 +21,7 @@ func (a floatValue) Less(b Item) bool {
 }
 
 var data, sorted = func() ([]Item, []Item) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var data []Item
 	for i := 0; i < 100; i++ {
 		data = append(data, floatValue(rand.Float64()*100))

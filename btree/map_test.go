@@ -34,7 +34,7 @@ func randMapKeys(N int) (keys []testMapKind) {
 }
 
 func (tr *Map[K, V]) lt(a, b K) bool  { return a < b }
-func (tr *Map[K, V]) eq(a, b K) bool  { return !(tr.lt(a, b) || tr.lt(b, a)) }
+func (tr *Map[K, V]) eq(a, b K) bool  { return !(tr.lt(a, b) || tr.lt(b, a)) } //nolint
 func (tr *Map[K, V]) lte(a, b K) bool { return tr.lt(a, b) || tr.eq(a, b) }
 func (tr *Map[K, V]) gt(a, b K) bool  { return tr.lt(b, a) }
 func (tr *Map[K, V]) gte(a, b K) bool { return tr.gt(a, b) || tr.eq(a, b) }

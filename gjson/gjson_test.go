@@ -26,10 +26,10 @@ func TestRandomData(t *testing.T) {
 			panic(v)
 		}
 	}()
-	rand.Seed(time.Now().UnixNano())
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, 200)
 	for i := 0; i < 2000000; i++ {
-		n, err := rand.Read(b[:rand.Int()%len(b)])
+		n, err := random.Read(b[:rand.Int()%len(b)])
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -40,10 +40,10 @@ func TestRandomData(t *testing.T) {
 }
 
 func TestRandomValidStrings(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, 200)
 	for i := 0; i < 100000; i++ {
-		n, err := rand.Read(b[:rand.Int()%len(b)])
+		n, err := random.Read(b[:rand.Int()%len(b)])
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -69,7 +69,9 @@ func TestEmoji(t *testing.T) {
 		`OK: \u2764\ufe0f "}`
 	value := Get(input, "utf8")
 	var s string
-	json.Unmarshal([]byte(value.Raw), &s)
+	if err := json.Unmarshal([]byte(value.Raw), &s); err != nil {
+		t.Fatal(err)
+	}
 	if value.String() != s {
 		t.Fatalf("expected '%v', got '%v'", s, value.String())
 	}
@@ -874,19 +876,20 @@ func testMany(t *testing.T, json string, paths, expected []string) {
 func testManyAny(t *testing.T, json string, paths, expected []string,
 	bytes bool) {
 	var result []Result
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		var which string
-		if i == 0 {
+		switch i {
+		case 0:
 			which = "Get"
 			result = nil
-			for j := 0; j < len(expected); j++ {
+			for j := range expected {
 				if bytes {
 					result = append(result, GetBytes([]byte(json), paths[j]))
 				} else {
 					result = append(result, Get(json, paths[j]))
 				}
 			}
-		} else if i == 1 {
+		case 1:
 			which = "GetMany"
 			if bytes {
 				result = GetManyBytes([]byte(json), paths...)
@@ -894,7 +897,7 @@ func testManyAny(t *testing.T, json string, paths, expected []string,
 				result = GetMany(json, paths...)
 			}
 		}
-		for j := 0; j < len(expected); j++ {
+		for j := range expected {
 			if result[j].String() != expected[j] {
 				t.Fatalf("Using key '%s' for '%s'\nexpected '%v', got '%v'",
 					paths[j], which, expected[j], result[j].String())
@@ -937,7 +940,7 @@ func TestRandomMany(t *testing.T) {
 			panic(v)
 		}
 	}()
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, 512)
 	for i := 0; i < 50000; i++ {
 		n, err := rand.Read(b[:rand.Int()%len(b)])
@@ -1109,7 +1112,7 @@ func makeRandomJSONChars(b []byte) {
 }
 
 func TestValidRandom(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, 100000)
 	start := time.Now()
 	for time.Since(start) < time.Second*3 {
@@ -1191,19 +1194,16 @@ func TestIssue54(t *testing.T) {
 	var r []Result
 	json := `{"MarketName":null,"Nounce":6115}`
 	r = GetMany(json, "Nounce", "Buys", "Sells", "Fills")
-	if strings.Replace(fmt.Sprintf("%v", r), " ", "", -1) != "[6115]" {
-		t.Fatalf("expected '%v', got '%v'", "[6115]",
-			strings.Replace(fmt.Sprintf("%v", r), " ", "", -1))
+	if strings.ReplaceAll(fmt.Sprintf("%v", r), " ", "") != "[6115]" {
+		t.Fatalf("expected '%v', got '%v'", "[6115]", strings.ReplaceAll(fmt.Sprintf("%v", r), " ", ""))
 	}
 	r = GetMany(json, "Nounce", "Buys", "Sells")
-	if strings.Replace(fmt.Sprintf("%v", r), " ", "", -1) != "[6115]" {
-		t.Fatalf("expected '%v', got '%v'", "[6115]",
-			strings.Replace(fmt.Sprintf("%v", r), " ", "", -1))
+	if strings.ReplaceAll(fmt.Sprintf("%v", r), " ", "") != "[6115]" {
+		t.Fatalf("expected '%v', got '%v'", "[6115]", strings.ReplaceAll(fmt.Sprintf("%v", r), " ", ""))
 	}
 	r = GetMany(json, "Nounce")
-	if strings.Replace(fmt.Sprintf("%v", r), " ", "", -1) != "[6115]" {
-		t.Fatalf("expected '%v', got '%v'", "[6115]",
-			strings.Replace(fmt.Sprintf("%v", r), " ", "", -1))
+	if strings.ReplaceAll(fmt.Sprintf("%v", r), " ", "") != "[6115]" {
+		t.Fatalf("expected '%v', got '%v'", "[6115]", strings.ReplaceAll(fmt.Sprintf("%v", r), " ", ""))
 	}
 }
 
@@ -2579,7 +2579,9 @@ func TestJSONString(t *testing.T) {
 		`OK: \u2764\ufe0f "}`
 	value := Get(input, "utf8")
 	var s string
-	json.Unmarshal([]byte(value.Raw), &s)
+	if err := json.Unmarshal([]byte(value.Raw), &s); err != nil {
+		t.Fatal(err)
+	}
 	if value.String() != s {
 		t.Fatalf("expected '%v', got '%v'", s, value.String())
 	}

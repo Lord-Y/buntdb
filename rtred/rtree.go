@@ -36,11 +36,9 @@ func (tr *RTree) Insert(item Item) {
 	}
 	min, max := item.Rect(tr.ctx)
 	if len(min) != len(max) {
-		return // just return
 		panic("invalid item rectangle")
 	}
 	if len(min) < 1 || len(min) > len(tr.trs) {
-		return // just return
 		panic("invalid dimension")
 	}
 	btr := tr.trs[len(min)-1]
@@ -51,7 +49,7 @@ func (tr *RTree) Insert(item Item) {
 	}
 	amin := make([]float64, len(min))
 	amax := make([]float64, len(max))
-	for i := 0; i < len(min); i++ {
+	for i := range min {
 		amin[i], amax[i] = min[i], max[i]
 	}
 	btr.Insert(amin, amax, item)
@@ -63,11 +61,9 @@ func (tr *RTree) Remove(item Item) {
 	}
 	min, max := item.Rect(tr.ctx)
 	if len(min) != len(max) {
-		return // just return
 		panic("invalid item rectangle")
 	}
 	if len(min) < 1 || len(min) > len(tr.trs) {
-		return // just return
 		panic("invalid dimension")
 	}
 	btr := tr.trs[len(min)-1]
@@ -76,7 +72,7 @@ func (tr *RTree) Remove(item Item) {
 	}
 	amin := make([]float64, len(min))
 	amax := make([]float64, len(max))
-	for i := 0; i < len(min); i++ {
+	for i := range min {
 		amin[i], amax[i] = min[i], max[i]
 	}
 	btr.Remove(amin, amax, item)
@@ -107,11 +103,9 @@ func (tr *RTree) Search(bounds Item, iter Iterator) {
 	}
 	min, max := bounds.Rect(tr.ctx)
 	if len(min) != len(max) {
-		return // just return
 		panic("invalid item rectangle")
 	}
 	if len(min) < 1 || len(min) > len(tr.trs) {
-		return // just return
 		panic("invalid dimension")
 	}
 	used := tr.used
@@ -127,10 +121,11 @@ func (tr *RTree) Search(bounds Item, iter Iterator) {
 		}
 	}
 }
+
 func search(btr *base.RTree, min, max []float64, dims int, iter Iterator) bool {
 	amin := make([]float64, dims)
 	amax := make([]float64, dims)
-	for i := 0; i < dims; i++ {
+	for i := range dims {
 		if i < len(min) {
 			amin[i] = min[i]
 			amax[i] = max[i]
@@ -140,7 +135,7 @@ func search(btr *base.RTree, min, max []float64, dims int, iter Iterator) bool {
 		}
 	}
 	var ended bool
-	btr.Search(amin, amax, func(item interface{}) bool {
+	btr.Search(amin, amax, func(item any) bool {
 		if !iter(item.(Item)) {
 			ended = true
 			return false
@@ -156,11 +151,9 @@ func (tr *RTree) KNN(bounds Item, center bool, iter func(item Item, dist float64
 	}
 	min, max := bounds.Rect(tr.ctx)
 	if len(min) != len(max) {
-		return // just return
 		panic("invalid item rectangle")
 	}
 	if len(min) < 1 || len(min) > len(tr.trs) {
-		return // just return
 		panic("invalid dimension")
 	}
 
@@ -181,7 +174,6 @@ func (tr *RTree) KNN(bounds Item, center bool, iter func(item Item, dist float64
 
 	type queueT struct {
 		done bool
-		step int
 		item Item
 		dist float64
 	}

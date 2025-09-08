@@ -84,8 +84,8 @@ func Assert(expression bool) {
 						if len(parts) > 1 {
 							ftext = strings.Join(parts[1:], ".")
 						}
-						ftext = strings.Replace(ftext, "(", "", -1)
-						ftext = strings.Replace(ftext, ")", "", -1)
+						ftext = strings.ReplaceAll(ftext, "(", "")
+						ftext = strings.ReplaceAll(ftext, ")", "")
 						ftext = strings.TrimPrefix(ftext, "*")
 						if strings.Contains(ftext, "..") {
 							ftext = "[anonymous]"
@@ -105,8 +105,7 @@ func Assert(expression bool) {
 				}
 			}
 		}
-		fmt.Fprintf(stderr, "Assertion failed: %s%sfile %s, line %d.\n",
-			atext, ftext, file, ln)
+		_, _ = fmt.Fprintf(stderr, "Assertion failed: %s%sfile %s, line %d.\n", atext, ftext, file, ln)
 		exit(6) // SIGABRT
 	}
 }

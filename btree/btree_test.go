@@ -11,7 +11,7 @@ func assert(x bool) {
 	}
 }
 
-func intLess(a, b interface{}) bool {
+func intLess(a, b any) bool {
 	return a.(int) < b.(int)
 }
 
@@ -130,7 +130,7 @@ func TestBTree(t *testing.T) {
 		wg.Done()
 
 		count = 0
-		tr.Walk(func(items []interface{}) {
+		tr.Walk(func(items []any) {
 			count += len(items)
 		})
 		assert(count == N)

@@ -79,7 +79,7 @@ func TestUgly(t *testing.T) {
 }
 
 func TestRandom(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 100000; i++ {
 		b := make([]byte, 1024)
 		rand.Read(b)
@@ -373,6 +373,7 @@ func TestColor(t *testing.T) {
 "arr":["1","2",1,2,true,false,null],
 "obj":{"key1":null,"ar`+"\x1B[36m"+`Cyanr2":[1,2,3,"123","456"]}}
 	`)), nil)
+	//nolint
 	if string(res) != `[1m{[0m
   [1m[94m"hello"[0m[1m:[0m [32m"world"[0m[1m,[0m
   [1m[94m"what"[0m[1m:[0m [33m123[0m[1m,[0m
@@ -389,8 +390,8 @@ func TestColor(t *testing.T) {
 
 func BenchmarkPretty(t *testing.B) {
 	t.ReportAllocs()
-	t.ResetTimer()
-	for i := 0; i < t.N; i++ {
+
+	for t.Loop() {
 		Pretty(example1)
 	}
 }
@@ -455,8 +456,8 @@ func BenchmarkSpec(t *testing.B) {
 func BenchmarkSpecInPlace(t *testing.B) {
 	example4 := []byte(string(example3))
 	t.ReportAllocs()
-	t.ResetTimer()
-	for i := 0; i < t.N; i++ {
+
+	for t.Loop() {
 		UglyInPlace(example4)
 	}
 }
@@ -464,25 +465,29 @@ func BenchmarkSpecInPlace(t *testing.B) {
 func BenchmarkJSONIndent(t *testing.B) {
 	var dst bytes.Buffer
 	t.ReportAllocs()
-	t.ResetTimer()
-	for i := 0; i < t.N; i++ {
-		json.Indent(&dst, example1, "", "  ")
+
+	for t.Loop() {
+		if err := json.Indent(&dst, example1, "", "  "); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
 func BenchmarkJSONCompact(t *testing.B) {
 	var dst bytes.Buffer
 	t.ReportAllocs()
-	t.ResetTimer()
-	for i := 0; i < t.N; i++ {
-		json.Compact(&dst, example1)
+
+	for t.Loop() {
+		if err := json.Compact(&dst, example1); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
 
 func TestPrettyNoSpaceAfterNewline(t *testing.T) {
 	json := `[{"foo":1,"bar":2},{"foo":3,"bar":4}]`
 	json = string(Pretty([]byte(json)))
-	if strings.Index(json, " \n") != -1 {
+	if strings.Contains(json, " \n") {
 		t.Fatal("found a space followed by a newline, which should not be allowed")
 	}
 }

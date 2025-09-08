@@ -109,31 +109,34 @@ func getMemStats() runtime.MemStats {
 }
 
 func ptrMakeRandom(what string) *Rect {
-	if what == "point" {
+	switch what {
+	case "point":
 		vals := make([]float64, D)
-		for i := 0; i < D; i++ {
-			if i == 0 {
+		for i := range D {
+			switch i {
+			case 0:
 				vals[i] = rand.Float64()*360 - 180
-			} else if i == 1 {
+			case 1:
 				vals[i] = rand.Float64()*180 - 90
-			} else {
+			default:
 				vals[i] = rand.Float64()*100 - 50
 			}
 		}
 		return ptrMakePoint(vals...)
-	} else if what == "rect" {
+	case "rect":
 		vals := make([]float64, D)
-		for i := 0; i < D; i++ {
-			if i == 0 {
+		for i := range D {
+			switch i {
+			case 0:
 				vals[i] = rand.Float64()*340 - 170
-			} else if i == 1 {
+			case 1:
 				vals[i] = rand.Float64()*160 - 80
-			} else {
+			default:
 				vals[i] = rand.Float64()*80 - 30
 			}
 		}
 		rvals := make([]float64, D*2)
-		for i := 0; i < D; i++ {
+		for i := range D {
 			rvals[i] = vals[i] - rand.Float64()*10
 			rvals[D+i] = vals[i] + rand.Float64()*10
 		}
@@ -153,7 +156,7 @@ func ptrTestRandom(t *testing.T, which string, n int) {
 	fmt.Println("-------------------------------------------------")
 	fmt.Printf("Testing Random %dD %ss\n", D, which)
 	fmt.Println("-------------------------------------------------")
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	tr := New(D, M)
 	min, max := tr.Bounds()
 	assertEqual(t, make([]float64, D), min[:])
@@ -183,12 +186,11 @@ func ptrTestRandom(t *testing.T, which string, n int) {
 	fmt.Printf("  tree overhead %d%%\n", int((float64(m3.HeapAlloc-m2.HeapAlloc)/float64(len(objs)))/(float64(m3.HeapAlloc-m1.HeapAlloc)/float64(len(objs)))*100))
 	fmt.Printf("  complexity %f\n", tr.Complexity())
 
-	start = time.Now()
 	// count all nodes and leaves
 	var nodes int
 	var leaves int
 	var maxLevel int
-	tr.Traverse(func(min, max []float64, level int, item interface{}) bool {
+	tr.Traverse(func(min, max []float64, level int, item any) bool {
 		if level != 0 {
 			nodes++
 		}
@@ -203,12 +205,12 @@ func ptrTestRandom(t *testing.T, which string, n int) {
 	fmt.Printf("  nodes: %d, leaves: %d, level: %d\n", nodes, leaves, maxLevel)
 
 	// verify mbr
-	for i := 0; i < D; i++ {
+	for i := range D {
 		min[i] = math.Inf(+1)
 		max[i] = math.Inf(-1)
 	}
 	for _, o := range objs {
-		for i := 0; i < D; i++ {
+		for i := range D {
 			if o.min[i] < min[i] {
 				min[i] = o.min[i]
 			}

@@ -7,7 +7,6 @@ package buntdb
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"runtime"
@@ -184,7 +183,9 @@ func (db *DB) Close() error {
 	}
 	db.closed = true
 	if db.persist {
-		db.file.Sync() // do a sync but ignore the error
+		if err := db.file.Sync(); err != nil {
+			return err
+		}
 		if err := db.file.Close(); err != nil {
 			return err
 		}
@@ -755,11 +756,11 @@ func (db *DB) Shrink() error {
 		}
 		// Any failures below here are really bad. So just panic.
 		if err := renameFile(tmpname, fname); err != nil {
-			panicErr(err)
+			panic(err)
 		}
 		db.file, err = os.OpenFile(fname, os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
-			panicErr(err)
+			panic(err)
 		}
 		pos, err := db.file.Seek(0, 2)
 		if err != nil {
@@ -768,10 +769,6 @@ func (db *DB) Shrink() error {
 		db.lastaofsz = int(pos)
 		return nil
 	}()
-}
-
-func panicErr(err error) error {
-	panic(fmt.Errorf("buntdb: %w", err))
 }
 
 func renameFile(src, dest string) error {
@@ -1240,10 +1237,10 @@ func (tx *Tx) Commit() error {
 				// should be killed to avoid corrupting the file.
 				pos, err := tx.db.file.Seek(-int64(n), 1)
 				if err != nil {
-					panicErr(err)
+					panic(err)
 				}
 				if err := tx.db.file.Truncate(pos); err != nil {
-					panicErr(err)
+					panic(err)
 				}
 			}
 			tx.rollbackInner()
@@ -2342,69 +2339,57 @@ func Desc(less func(a, b string) bool) func(a, b string) bool {
 
 //// Wrappers around btree Ascend/Descend
 
-func bLT(tr *btree.BTree, a, b interface{}) bool { return tr.Less(a, b) }
-func bGT(tr *btree.BTree, a, b interface{}) bool { return tr.Less(b, a) }
+func bLT(tr *btree.BTree, a, b any) bool { return tr.Less(a, b) }
+func bGT(tr *btree.BTree, a, b any) bool { return tr.Less(b, a) }
 
 // func bLTE(tr *btree.BTree, a, b interface{}) bool { return !tr.Less(b, a) }
 // func bGTE(tr *btree.BTree, a, b interface{}) bool { return !tr.Less(a, b) }
 
 // Ascend
 
-func btreeAscend(tr *btree.BTree, iter func(item interface{}) bool) {
+func btreeAscend(tr *btree.BTree, iter func(item any) bool) {
 	tr.Ascend(nil, iter)
 }
 
-func btreeAscendLessThan(tr *btree.BTree, pivot interface{},
-	iter func(item interface{}) bool,
-) {
-	tr.Ascend(nil, func(item interface{}) bool {
+func btreeAscendLessThan(tr *btree.BTree, pivot any, iter func(item any) bool) {
+	tr.Ascend(nil, func(item any) bool {
 		return bLT(tr, item, pivot) && iter(item)
 	})
 }
 
-func btreeAscendGreaterOrEqual(tr *btree.BTree, pivot interface{},
-	iter func(item interface{}) bool,
-) {
+func btreeAscendGreaterOrEqual(tr *btree.BTree, pivot any, iter func(item any) bool) {
 	tr.Ascend(pivot, iter)
 }
 
-func btreeAscendRange(tr *btree.BTree, greaterOrEqual, lessThan interface{},
-	iter func(item interface{}) bool,
-) {
-	tr.Ascend(greaterOrEqual, func(item interface{}) bool {
+func btreeAscendRange(tr *btree.BTree, greaterOrEqual, lessThan any, iter func(item any) bool) {
+	tr.Ascend(greaterOrEqual, func(item any) bool {
 		return bLT(tr, item, lessThan) && iter(item)
 	})
 }
 
 // Descend
 
-func btreeDescend(tr *btree.BTree, iter func(item interface{}) bool) {
+func btreeDescend(tr *btree.BTree, iter func(item any) bool) {
 	tr.Descend(nil, iter)
 }
 
-func btreeDescendGreaterThan(tr *btree.BTree, pivot interface{},
-	iter func(item interface{}) bool,
-) {
-	tr.Descend(nil, func(item interface{}) bool {
+func btreeDescendGreaterThan(tr *btree.BTree, pivot any, iter func(item any) bool) {
+	tr.Descend(nil, func(item any) bool {
 		return bGT(tr, item, pivot) && iter(item)
 	})
 }
 
-func btreeDescendRange(tr *btree.BTree, lessOrEqual, greaterThan interface{},
-	iter func(item interface{}) bool,
-) {
-	tr.Descend(lessOrEqual, func(item interface{}) bool {
+func btreeDescendRange(tr *btree.BTree, lessOrEqual, greaterThan any, iter func(item any) bool) {
+	tr.Descend(lessOrEqual, func(item any) bool {
 		return bGT(tr, item, greaterThan) && iter(item)
 	})
 }
 
-func btreeDescendLessOrEqual(tr *btree.BTree, pivot interface{},
-	iter func(item interface{}) bool,
-) {
+func btreeDescendLessOrEqual(tr *btree.BTree, pivot any, iter func(item any) bool) {
 	tr.Descend(pivot, iter)
 }
 
-func btreeNew(less func(a, b interface{}) bool) *btree.BTree {
+func btreeNew(less func(a, b any) bool) *btree.BTree {
 	// Using NewNonConcurrent because we're managing our own locks.
-	return btree.NewNonConcurrent(less)
+	return btree.NewOptions(less, btree.Options{NoLocks: true})
 }

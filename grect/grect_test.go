@@ -80,9 +80,9 @@ func TestGeoJSON(t *testing.T) {
 
 func TestRandom(t *testing.T) {
 	buf := make([]byte, 50)
-	rand.Seed(time.Now().UnixNano())
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 10000000; i++ {
-		rand.Read(buf)
+		random.Read(buf)
 		Get(string(buf))
 	}
 }

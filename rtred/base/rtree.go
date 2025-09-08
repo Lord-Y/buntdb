@@ -477,11 +477,12 @@ func (tr *RTree) search(node, bbox *treeNode, iter func(item interface{}) bool) 
 	} else {
 		for i := 0; i < node.count; i++ {
 			r := bbox.overlaps(node.children[i])
-			if r == intersects {
+			switch r {
+			case intersects:
 				if !tr.search(node.children[i], bbox, iter) {
 					return false
 				}
-			} else if r == contains {
+			case contains:
 				if !scan(node.children[i], iter) {
 					return false
 				}
@@ -563,8 +564,8 @@ func (tr *RTree) remove(bbox *treeNode, item interface{}) {
 done:
 	tr.reuse.path = path
 	tr.reuse.indexes = indexes
-	return
 }
+
 func (tr *RTree) condense(path []*treeNode) {
 	// go through the path, removing empty nodes and updating bboxes
 	var siblings []*treeNode

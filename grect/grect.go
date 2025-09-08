@@ -70,26 +70,19 @@ func normalize(min, max []float64) (nmin, nmax []float64) {
 }
 
 func Get(s string) Rect {
-	var i int
-	var ws bool
 	var min, max []float64
-	for ; i < len(s); i++ {
+	for i := range len(s) {
 		switch s[i] {
 		default:
 			continue
-		case ' ', '\t', '\r', '\n':
-			ws = true
+		case ' ', '\t', '\r', '\n', 0x00, 0x01:
 			continue
 		case '[':
-			min, max, i = getRect(s, i)
+			min, max, _ = getRect(s, i)
 		case '{':
-			min, max, i = getGeoJSON(s, i)
-		case 0x00, 0x01:
-			if !ws {
-				//		return parseWKB(s, i)
-			}
+			min, max, _ = getGeoJSON(s, i)
 		case 'p', 'P', 'l', 'L', 'm', 'M', 'g', 'G':
-			min, max, i = getWKT(s, i)
+			min, max, _ = getWKT(s, i)
 		}
 		break
 	}

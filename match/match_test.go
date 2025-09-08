@@ -367,7 +367,7 @@ func TestWildcardMatch(t *testing.T) {
 	}
 }
 func TestRandomInput(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b1 := make([]byte, 100)
 	b2 := make([]byte, 100)
 	for i := 0; i < 1000000; i++ {
@@ -451,8 +451,8 @@ func TestLotsaStars(t *testing.T) {
 		`**,**,"",**,**,**,**,**,**,**,**,**,**]`
 	Match(pat, str)
 
-	str = strings.Replace(str, ",", "情", -1)
-	pat = strings.Replace(pat, ",", "情", -1)
+	str = strings.ReplaceAll(str, ",", "情")
+	pat = strings.ReplaceAll(pat, ",", "情")
 	Match(pat, str)
 
 	str = strings.Repeat("hello", 100)

@@ -680,9 +680,10 @@ func (t Result) Value() interface{} {
 		return t.Num
 	case JSON:
 		r := t.arrayOrMap(0, true)
-		if r.vc == '{' {
+		switch r.vc {
+		case '{':
 			return r.oi
-		} else if r.vc == '[' {
+		case '[':
 			return r.ai
 		}
 		return nil
@@ -2629,7 +2630,7 @@ func validstring(data []byte, i int) (outi int, ok bool) {
 					if i >= len(data) {
 						return i, false
 					}
-					if !((data[i] >= '0' && data[i] <= '9') ||
+					if !((data[i] >= '0' && data[i] <= '9') || //nolint
 						(data[i] >= 'a' && data[i] <= 'f') ||
 						(data[i] >= 'A' && data[i] <= 'F')) {
 						return i, false

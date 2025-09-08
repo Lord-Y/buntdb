@@ -207,7 +207,7 @@ func matchTrimSuffix(str, pat string, nocase bool) (string, string, bool) {
 		if nocase {
 			pc, sc = tolower(pc), tolower(sc)
 		}
-		if !((pc == '?' && !esc) || pc == sc) {
+		if !((pc == '?' && !esc) || pc == sc) { //nolint
 			match = false
 			break
 		}

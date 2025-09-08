@@ -235,7 +235,7 @@ func parsestr(s []byte) []byte {
 	for i := 1; i < len(s); i++ {
 		if s[i] == '\\' {
 			var str string
-			json.Unmarshal(s, &str)
+			_ = json.Unmarshal(s, &str)
 			return []byte(str)
 		}
 		if s[i] == '"' {
@@ -579,13 +579,14 @@ func Color(src []byte, style *Style) []byte {
 					}
 					dst = apnd(dst, src[i])
 				}
-				if kind == '0' {
+				switch kind {
+				case '0':
 					dst = append(dst, style.Number[1]...)
-				} else if kind == 't' {
+				case 't':
 					dst = append(dst, style.True[1]...)
-				} else if kind == 'f' {
+				case 'f':
 					dst = append(dst, style.False[1]...)
-				} else if kind == 'n' {
+				case 'n':
 					dst = append(dst, style.Null[1]...)
 				}
 			}
