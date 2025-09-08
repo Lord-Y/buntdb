@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tidwall/assert"
-	"github.com/tidwall/lotsa"
+	"github.com/Lord-Y/buntdb/assert"
+	"github.com/Lord-Y/buntdb/lotsa"
 )
 
 func testOpen(t testing.TB) *DB {
